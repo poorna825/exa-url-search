@@ -4,8 +4,9 @@ Search endpoints
 import logging
 from typing import Optional, List
 from fastapi import APIRouter, Query, HTTPException
-from ..models import SearchResponse, SearchResult, ErrorResponse
+from ..models import SearchResponse, SearchResult, ConsensusInsight, ErrorResponse
 from ..services import SearchService, SummaryService
+from ..services.consensus_service import ConsensusService
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/api", tags=["search"])
 # Initialize services
 search_service = SearchService()
 summary_service = SummaryService()
+consensus_service = ConsensusService()
 
 
 @router.get(
@@ -111,11 +113,26 @@ async def search_content(
         
         logger.info(f"Successfully processed {len(results_with_summary)} results")
         
+        # Generate cross-platform consensus insights
+        consensus = None
+        if results_with_summary:
+            try:
+                consensus_data = consensus_service.generate_consensus(
+                    results_with_summary,
+                    query=query
+                )
+                consensus = ConsensusInsight(**consensus_data)
+                logger.info("Consensus insights generated successfully")
+            except Exception as e:
+                logger.error(f"Failed to generate consensus: {str(e)}")
+                # Continue without consensus rather than failing the whole request
+        
         return SearchResponse(
             results=results_with_summary,
             query=query,
             count=len(results_with_summary),
-            domains=domain_list
+            domains=domain_list,
+            consensus=consensus
         )
         
     except HTTPException:

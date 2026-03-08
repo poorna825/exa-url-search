@@ -20,6 +20,14 @@ interface SearchResult {
   domain: string;
 }
 
+interface ConsensusInsight {
+  platform_insights: Record<string, string>;
+  agreements: string[];
+  disagreements: string[];
+  top_entities: string[];
+  overall_consensus: string;
+}
+
 interface DomainOption {
   key: string;
   url: string;
@@ -29,6 +37,7 @@ interface DomainOption {
 function App() {
   const [currentQuery, setCurrentQuery] = useState<string>('');
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [consensus, setConsensus] = useState<ConsensusInsight | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [availableDomains, setAvailableDomains] = useState<DomainOption[]>([]);
@@ -99,11 +108,13 @@ function App() {
       }
       
       setResults(data.results || []);
+      setConsensus(data.consensus || null);
     } catch (err) {
       console.error(err);
       const errorMessage = err instanceof Error ? err.message : "Error fetching results";
       setError(errorMessage);
       setResults([]);
+      setConsensus(null);
     } finally {
       setLoading(false);
     }
@@ -169,6 +180,7 @@ function App() {
                     query={currentQuery}
                     resultCount={results.length}
                     domains={selectedDomains}
+                    consensus={consensus}
                   />
 
                   {/* Results Grid */}
