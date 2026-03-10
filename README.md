@@ -1,4 +1,4 @@
-# Nebula
+# Nebula - EXA Multi-Domain Search
 
 A multi-platform search engine that aggregates content from popular platforms and generates AI-powered summaries.
 
