@@ -135,7 +135,7 @@ function App() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed top-6 right-4 z-[60]"
+          className="fixed top-6 right-6 z-[60]"
         >
           <ThemeToggle />
         </motion.div>
@@ -145,7 +145,7 @@ function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-6 left-4 z-[60] p-3 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border border-indigo-200 dark:border-indigo-500/30 rounded-xl shadow-lg shadow-indigo-500/10 hover:shadow-xl hover:shadow-cyan-500/20 hover:border-cyan-400 dark:hover:border-cyan-500/50 transition-all duration-300"
+          className="lg:hidden fixed top-6 left-6 z-[60] p-3 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border border-indigo-200 dark:border-indigo-500/30 rounded-xl shadow-lg shadow-indigo-500/10 hover:shadow-xl hover:shadow-cyan-500/20 hover:border-cyan-400 dark:hover:border-cyan-500/50 transition-all duration-300"
         >
           {sidebarOpen ? (
             <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
@@ -154,23 +154,47 @@ function App() {
           )}
         </motion.button>
 
-        {/* Search Bar - Sticky at top */}
-        <div className="pt-8 pb-4">
-          <SearchBar onSearch={handleSearch} loading={loading} />
-        </div>
-
-        {/* Main Layout */}
-        <div className="flex gap-6 px-4 max-w-[1800px] mx-auto mt-8">
-          {/* Left Sidebar - Desktop */}
-          <div className="hidden lg:block">
-            <Sidebar
-              availableDomains={availableDomains}
-              selectedDomains={selectedDomains}
-              onDomainToggle={handleDomainToggle}
-            />
+        {/* Header Area - Large Command Interface */}
+        <header className="relative">
+          <div className="min-h-[40vh] flex items-center justify-center px-6 py-20">
+            <motion.div
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="w-full max-w-5xl"
+            >
+              <SearchBar onSearch={handleSearch} loading={loading} />
+            </motion.div>
           </div>
+          
+          {/* Subtle separator */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="w-full h-px bg-gradient-to-r from-transparent via-cyan-300/50 dark:via-cyan-500/30 to-transparent"
+          />
+        </header>
 
-          {/* Left Sidebar - Mobile Overlay */}
+        {/* Main Layout - Exploration Workspace */}
+        <div className="flex gap-8 px-6 pb-12 max-w-[2000px] mx-auto">
+          {/* Context Panel - Desktop Sidebar */}
+          <aside className="hidden lg:block w-80 flex-shrink-0">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="sticky top-8"
+            >
+              <Sidebar
+                availableDomains={availableDomains}
+                selectedDomains={selectedDomains}
+                onDomainToggle={handleDomainToggle}
+              />
+            </motion.div>
+          </aside>
+
+          {/* Mobile Sidebar Overlay */}
           <AnimatePresence>
             {sidebarOpen && (
               <>
@@ -185,13 +209,13 @@ function App() {
                 
                 {/* Sidebar */}
                 <motion.div
-                  initial={{ x: -300, opacity: 0 }}
+                  initial={{ x: -320, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -300, opacity: 0 }}
+                  exit={{ x: -320, opacity: 0 }}
                   transition={{ type: 'spring', damping: 25 }}
-                  className="lg:hidden fixed left-0 top-0 bottom-0 w-80 z-50 bg-gray-950 border-r border-gray-800 overflow-y-auto p-4"
+                  className="lg:hidden fixed left-0 top-0 bottom-0 w-80 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-indigo-200 dark:border-indigo-500/30 overflow-y-auto p-6"
                 >
-                  <div className="mt-16">
+                  <div className="mt-20">
                     <Sidebar
                       availableDomains={availableDomains}
                       selectedDomains={selectedDomains}
@@ -203,15 +227,15 @@ function App() {
             )}
           </AnimatePresence>
 
-          {/* Main Content */}
-          <main className="flex-1 min-w-0 pb-12">
+          {/* Exploration Workspace */}
+          <main className="flex-1 min-w-0">
             <AnimatePresence mode="wait">
               {error && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="mb-6 backdrop-blur-xl bg-red-100/80 dark:bg-red-900/30 border border-red-300 dark:border-red-500/50 rounded-2xl p-5 shadow-xl"
+                  className="mb-8 backdrop-blur-xl bg-red-100/80 dark:bg-red-900/30 border border-red-300 dark:border-red-500/50 rounded-2xl p-6 shadow-xl"
                 >
                   <p className="text-red-700 dark:text-red-300">
                     <strong className="font-semibold">Error:</strong> {error}
@@ -236,34 +260,70 @@ function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-6"
+                  className="space-y-12"
                 >
-                  {/* Insights Panel */}
-                  <InsightPanel
-                    query={currentQuery}
-                    resultCount={results.length}
-                    domains={selectedDomains}
-                    consensus={consensus}
-                  />
+                  {/* AI Consensus Insight - Centerpiece */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                  >
+                    <InsightPanel
+                      query={currentQuery}
+                      resultCount={results.length}
+                      domains={selectedDomains}
+                      consensus={consensus}
+                    />
+                  </motion.div>
 
-                  {/* Results Grid */}
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between px-1">
-                      <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300">
-                        Search Results
-                      </h2>
-                      <span className="text-sm text-gray-500 dark:text-gray-500">
+                  {/* Results Section */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                    className="space-y-6"
+                  >
+                    <div className="flex items-center justify-between">
+                      <motion.h2
+                        className="text-2xl font-bold text-gray-900 dark:text-gray-100"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        Source Results
+                      </motion.h2>
+                      <motion.span
+                        className="text-sm text-gray-500 dark:text-gray-500 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
                         {results.length} {results.length === 1 ? 'result' : 'results'}
-                      </span>
+                      </motion.span>
                     </div>
-                    {results.map((result, index) => (
-                      <ResultCard
-                        key={`${result.url}-${index}`}
-                        {...result}
-                        index={index}
-                      />
-                    ))}
-                  </div>
+
+                    {/* Results Grid - Modular Layout */}
+                    <motion.div
+                      className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      {results.map((result, index) => (
+                        <motion.div
+                          key={`${result.url}-${index}`}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
+                        >
+                          <ResultCard
+                            {...result}
+                            index={index}
+                          />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </motion.div>
                 </motion.div>
               )}
 
@@ -280,11 +340,16 @@ function App() {
             </AnimatePresence>
           </main>
 
-          {/* Right Sidebar - Trends (Desktop Only) */}
-          <aside className="w-80 flex-shrink-0 hidden xl:block">
-            <div className="sticky top-24">
+          {/* Trends Panel - Desktop Right Sidebar */}
+          <aside className="hidden 2xl:block w-80 flex-shrink-0">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="sticky top-8"
+            >
               <TrendWidget />
-            </div>
+            </motion.div>
           </aside>
         </div>
       </div>
